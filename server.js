@@ -36,7 +36,7 @@ const razorpay = new Razorpay({
 app.post("/api/create-order", async (req, res) => {
   try {
     const { amount } = req.body;
-
+  console.log("Received amount:", amount);
     if (!amount || amount <= 0) {
       return res.status(400).json({
         message: "Invalid amount"
@@ -48,9 +48,9 @@ app.post("/api/create-order", async (req, res) => {
       currency: "INR",
       receipt: `receipt_${Date.now()}`
     };
-
+   console.log("Creating Razorpay order with options:", options);
     const order = await razorpay.orders.create(options);
-
+console.log("Razorpay order created:", order);
     res.json({
       success: true,
       order
