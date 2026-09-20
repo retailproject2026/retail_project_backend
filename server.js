@@ -5,7 +5,7 @@ require("dotenv").config();
 
 const app = express();
 app.use(cors({
-  origin: 'http://localhost:4200',
+  origin: 'https://retailproject2026.github.io',  //http://localhost:4200
   credentials: true
 }));
 
