@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/api/test-db', async (req, res) => {
+app.post('/api/test-db', async (req, res) => {
   try {
     // Fetch the first record from the Maintenance collection
    
