@@ -23,8 +23,8 @@ app.post("/api/health", (req, res) => {
 });
 
 const razorpay = new Razorpay({
-  key_id: "rzp_test_Te8ZLRQeOlYAZD",
-  key_secret: "eyhiL5QL3nUfjeKsok4dxSYK"
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
 // Create Razorpay Order
@@ -123,7 +123,7 @@ app.post("/api/verify", (req, res) => {
     });
   }
 });
-
-app.listen(process.env.PORT, () => {
-  console.log(`Server running on http://localhost:${process.env.PORT}`);
+ const PORT = process.env.PORT || 3000;
+app.listen(PORT,'0.0.0.0', () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
