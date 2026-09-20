@@ -4,10 +4,6 @@ const Razorpay = require("razorpay");
 require("dotenv").config();
 
 const app = express();
-app.use(cors({
-  origin: 'https://retailproject2026.github.io',  //http://localhost:4200
-  credentials: true
-}));
 
 app.use(express.json());
 
