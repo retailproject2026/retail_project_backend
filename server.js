@@ -4,8 +4,23 @@ const Razorpay = require("razorpay");
 require("dotenv").config();
 
 const app = express();
+const allowedOrigins = [
+  'https://retailproject2026.github.io',
+  'http://localhost:4200',
+  'http://127.0.0.1:4200'
+];
+
 app.use(cors({
-  origin: ['https://retailproject2026.github.io', 'http://localhost:4200'],
+  origin: (origin, callback) => {
+    const normalizedOrigin = origin ? origin.replace(/\/$/, '') : origin;
+
+    if (!origin || allowedOrigins.includes(normalizedOrigin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 app.use(express.json());
