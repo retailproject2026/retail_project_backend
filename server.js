@@ -4,28 +4,19 @@ const Razorpay = require("razorpay");
 require("dotenv").config();
 
 const app = express();
-const allowedOrigins = [
-  'https://retailproject2026.github.io',
-  'http://localhost:4200',
-  'http://127.0.0.1:4200'
-];
-
-app.use(cors({
-  origin: (origin, callback) => {
-    const normalizedOrigin = origin ? origin.replace(/\/$/, '') : origin;
-
-    if (!origin || allowedOrigins.includes(normalizedOrigin)) {
-      callback(null, true);
-      return;
-    }
-
-    callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
-
+app.get('/api/test-db', async (req, res) => {
+  try {
+    // Fetch the first record from the Maintenance collection
+   
+    res.json({'test': 'Database connection successful'});
+  } catch (error) {
+    console.error('Database test error:', error);
+    res.status(500).json({ error: 'Database connection test failed', details: error.message });
+  }
+});
 app.post("/api/health", (req, res) => {
   res.json({
     success: true,
