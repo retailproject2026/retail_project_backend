@@ -28,8 +28,8 @@ app.post("/api/health", (req, res) => {
 });
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET
+  key_id: "rzp_test_Te8ZLRQeOlYAZD",
+  key_secret: "eyhiL5QL3nUfjeKsok4dxSYK"
 });
 
 // Create Razorpay Order
