@@ -28,15 +28,15 @@ app.post("/api/health", (req, res) => {
 });
 
 const razorpay = new Razorpay({
-  key_id: "rzp_test_Te8ZLRQeOlYAZD",
-  key_secret: "eyhiL5QL3nUfjeKsok4dxSYK"
+  key_id:  process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
 // Create Razorpay Order
 app.post("/api/create-order", async (req, res) => {
   try {
     const { amount } = req.body;
-  console.log("Received amount:", amount);
+
     if (!amount || amount <= 0) {
       return res.status(400).json({
         message: "Invalid amount"
@@ -48,9 +48,9 @@ app.post("/api/create-order", async (req, res) => {
       currency: "INR",
       receipt: `receipt_${Date.now()}`
     };
-   console.log("Creating Razorpay order with options:", options);
+  
     const order = await razorpay.orders.create(options);
-console.log("Razorpay order created:", order);
+
     res.json({
       success: true,
       order
