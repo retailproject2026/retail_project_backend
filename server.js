@@ -1,11 +1,25 @@
 const express = require("express");
 const cors = require("cors");
 const Razorpay = require("razorpay");
+const multer = require("multer");
 require("dotenv").config();
+const { getImageUrl, isConfigured: cloudinaryConfigured, uploadImage } = require("./cloudinaryService");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, callback) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return callback(new Error("Only image files are allowed"));
+    }
+
+    callback(null, true);
+  }
+});
 
 app.post('/api/test-db', async (req, res) => {
   try {
@@ -21,6 +35,7 @@ app.post("/api/health", (req, res) => {
   res.json({
     success: true,
     service: "razorpay-backend",
+    cloudinaryConfigured,
     razorpayConfigured: Boolean(
       process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
     )
@@ -128,7 +143,75 @@ app.post("/api/verify", (req, res) => {
     });
   }
 });
- const PORT = process.env.PORT || 3000;
-app.listen(PORT,'0.0.0.0', () => {
+app.post("/api/cloudinary/upload", upload.single("image"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "An image is required in the image field"
+      });
+    }
+
+    const result = await uploadImage(req.file.buffer, {
+      folder: req.body.folder
+    });
+
+    res.status(201).json({
+      success: true,
+      image: {
+        publicId: result.public_id,
+        url: result.secure_url,
+        width: result.width,
+        height: result.height,
+        format: result.format
+      }
+    });
+  } catch (error) {
+    console.error("Cloudinary upload failed:", error.message);
+    res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.statusCode === 503 ? error.message : "Unable to upload image"
+    });
+  }
+});
+
+app.get("/api/cloudinary/image", (req, res) => {
+  try {
+    const { publicId } = req.query;
+
+    if (!publicId || typeof publicId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "publicId query parameter is required"
+      });
+    }
+
+    res.json({
+      success: true,
+      publicId,
+      url: getImageUrl(publicId)
+    });
+  } catch (error) {
+    console.error("Cloudinary image URL generation failed:", error.message);
+    res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.statusCode === 503 ? error.message : "Unable to get image"
+    });
+  }
+});
+
+app.use((error, req, res, next) => {
+  if (error instanceof multer.MulterError || error.message === "Only image files are allowed") {
+    return res.status(400).json({
+      success: false,
+      message: error.code === "LIMIT_FILE_SIZE" ? "Image must be 10 MB or smaller" : error.message
+    });
+  }
+
+  next(error);
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
